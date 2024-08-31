@@ -147,21 +147,33 @@ function Main({ children }) {
   return <main className="main">{children}</main>;
 }
 
+function Loader() {
+  return (
+    <div className="loader">
+      <div className="loading-bar">
+        <div className="bar"></div>
+      </div>
+    </div>
+  );
+}
+
 const API_KEY = "f20886d6";
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function fetchMovie() {
+      setIsLoading(true);
       const res = await fetch(
         `http://www.omdbapi.com/?apikey=${API_KEY}&s=oppenheimer`
       );
       const data = await res.json();
 
       setMovies(data.Search);
-      console.log(data.Search);
+      setIsLoading(false);
     }
 
     fetchMovie();
@@ -176,7 +188,9 @@ export default function App() {
       </NavBar>
 
       <Main>
-        <BoxMovies element={<MovieList movies={movies} />} />
+        <BoxMovies
+          element={isLoading ? <Loader /> : <MovieList movies={movies} />}
+        />
 
         <BoxMovies
           element={
