@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import tempMovieData from "./MovieData";
 import tempWatchedData from "./WatchData";
 
@@ -147,25 +147,9 @@ function Main({ children }) {
   return <main className="main">{children}</main>;
 }
 
-const API_KEY = "f20886d6";
-
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
-
-  useEffect(() => {
-    async function fetchMovie() {
-      const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${API_KEY}&s=oppenheimer`
-      );
-      const data = await res.json();
-
-      setMovies(data.Search);
-      console.log(data.Search);
-    }
-
-    fetchMovie();
-  }, []);
 
   return (
     <>
