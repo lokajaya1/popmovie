@@ -38,9 +38,9 @@ function NavBar({ children }) {
   return <nav className="nav-bar">{children}</nav>;
 }
 
-function MovieItem({ movie }) {
+function MovieItem({ movie, onSelectMovieId }) {
   return (
-    <li key={movie.imdbID}>
+    <li key={movie.imdbID} onClick={() => onSelectMovieId(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -53,11 +53,15 @@ function MovieItem({ movie }) {
   );
 }
 
-function MovieList({ movies }) {
+function MovieList({ movies, onSelectMovieId }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie, index) => (
-        <MovieItem key={index} movie={movie} />
+        <MovieItem
+          key={index}
+          movie={movie}
+          onSelectMovieId={onSelectMovieId}
+        />
       ))}
     </ul>
   );
@@ -170,19 +174,25 @@ export default function App() {
   const [watched, setWatched] = useState(tempWatchedData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("hitler");
+  const [selectMovieId, setSelectMovieId] = useState(null);
 
-  const tempQuery = "hitler";
+  function handleSelectMovieId(id) {
+    console.log(id);
+    setSelectMovieId(id);
+  }
 
-  useEffect(() => {
-    console.log(1);
-  }, []);
+  // const tempQuery = "";
 
-  useEffect(() => {
-    console.log(2);
-  });
+  // useEffect(() => {
+  //   console.log(1);
+  // }, []);
 
-  console.log(3);
+  // useEffect(() => {
+  //   console.log(2);
+  // });
+
+  // console.log(3);
 
   useEffect(() => {
     async function fetchMovie() {
@@ -199,6 +209,8 @@ export default function App() {
         const data = await res.json();
 
         if (data.Response === "False") throw new Error(data.Error);
+
+        console.log(data.Search);
 
         setMovies(data.Search);
       } catch (err) {
@@ -229,7 +241,9 @@ export default function App() {
         <BoxMovies>
           {isLoading && <Loader />}
           {error && <ErrorMessage message={error} />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovieId={handleSelectMovieId} />
+          )}
         </BoxMovies>
 
         <BoxMovies>
