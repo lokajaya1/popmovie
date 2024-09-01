@@ -86,7 +86,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}</span>
+          <span>{avgUserRating.toFixed(1)}</span>
         </p>
         <p>
           <span>⏳</span>
@@ -146,9 +146,12 @@ function BoxMovies({ children }) {
   );
 }
 
-function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
+function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
+  const [userRating, setUserRating] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
 
   const {
     Title: title,
@@ -184,6 +187,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
       Poster: poster,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
+      userRating: Number(userRating),
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
@@ -230,10 +234,21 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
               <b>Director:</b> {director}
             </p>
             <div className="rating">
-              <StarRating max={10} color="#fcc419" size={24} />
-              <button className="btn-add" onClick={handleAddWatched}>
-                + Add to Watched
-              </button>
+              {isWatched ? (
+                <p>You have watched this movie</p>
+              ) : (
+                <>
+                  <StarRating
+                    max={10}
+                    color="#fcc419"
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+                  <button className="btn-add" onClick={handleAddWatched}>
+                    + Add to Watched
+                  </button>
+                </>
+              )}
             </div>
           </section>
         </>
@@ -356,6 +371,7 @@ export default function App() {
               selectedId={selectMovieId}
               onCloseMovie={handleCloseMovie}
               onAddWatched={handleAddWatched}
+              watched={watched}
             />
           ) : (
             <>
