@@ -195,6 +195,10 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   useEffect(() => {
     if (!title) return;
     document.title = `Pop Movie | ${title}`;
+
+    return function () {
+      document.title = "Pop Movie";
+    };
   }, [title]);
 
   function handleAddWatched() {
@@ -309,7 +313,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("oppenheimer");
+  const [query, setQuery] = useState("naruto");
   const [selectMovieId, setSelectMovieId] = useState(null);
 
   function handleSelectMovieId(id) {
@@ -341,13 +345,16 @@ export default function App() {
   // console.log(3);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchMovie() {
       try {
         setIsLoading(true);
         setError("");
 
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`,
+          { signal: controller.signal }
         );
 
         if (!res.ok) throw new Error("Something went wrong");
@@ -359,7 +366,9 @@ export default function App() {
         console.log(data.Search);
 
         setMovies(data.Search);
+        setError("");
       } catch (err) {
+        if (err.name === "AbortError") return;
         setError(err.message);
       } finally {
         setIsLoading(false);
@@ -373,6 +382,9 @@ export default function App() {
     }
 
     fetchMovie();
+    return function () {
+      controller.abort();
+    };
   }, [query]);
 
   return (
