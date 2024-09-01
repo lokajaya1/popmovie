@@ -82,7 +82,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>🎬</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(1)}</span>
         </p>
         <p>
           <span>🌟</span>
@@ -90,7 +90,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{Math.trunc(avgRuntime)} min</span>
         </p>
       </div>
     </div>
@@ -146,7 +146,7 @@ function BoxMovies({ children }) {
   );
 }
 
-function MovieDetails({ selectedId, onCloseMovie }) {
+function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
   const [movie, setMovie] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -175,6 +175,19 @@ function MovieDetails({ selectedId, onCloseMovie }) {
     }
     getMovieDetails();
   }, [selectedId]);
+
+  function handleAddWatched() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      Title: title,
+      Year: year,
+      Poster: poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+    };
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
 
   return (
     <div className="details">
@@ -218,6 +231,9 @@ function MovieDetails({ selectedId, onCloseMovie }) {
             </p>
             <div className="rating">
               <StarRating max={10} color="#fcc419" size={24} />
+              <button className="btn-add" onClick={handleAddWatched}>
+                + Add to Watched
+              </button>
             </div>
           </section>
         </>
@@ -251,8 +267,8 @@ function ErrorMessage({ message }) {
 const API_KEY = "f20886d6";
 
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("oppenheimer");
@@ -260,6 +276,10 @@ export default function App() {
 
   function handleSelectMovieId(id) {
     setSelectMovieId((selectedId) => (selectedId === id ? null : id));
+  }
+
+  function handleAddWatched(movie) {
+    setWatched((watched) => [...watched, movie]);
   }
 
   function handleCloseMovie() {
@@ -335,6 +355,7 @@ export default function App() {
             <MovieDetails
               selectedId={selectMovieId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
             />
           ) : (
             <>
