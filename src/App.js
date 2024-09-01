@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import tempMovieData from "./MovieData";
 import tempWatchedData from "./WatchData";
+import StarRating from "./StarRating";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -147,10 +148,12 @@ function BoxMovies({ children }) {
 
 function MovieDetails({ selectedId, onCloseMovie }) {
   const [movie, setMovie] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const {
     Title: title,
     Year: year,
+    Released: released,
     Poster: poster,
     imdbRating,
     Runtime: runtime,
@@ -160,25 +163,65 @@ function MovieDetails({ selectedId, onCloseMovie }) {
     Actors: actors,
   } = movie;
 
-  console.log(title, year);
-
   useEffect(() => {
     async function getMovieDetails() {
+      setLoading(true);
       const response = await fetch(
         `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`
       );
       const data = await response.json();
       setMovie(data);
+      setLoading(false);
     }
     getMovieDetails();
   }, [selectedId]);
 
   return (
     <div className="details">
-      <button className="btn-back" onClick={onCloseMovie}>
-        &#x2715;
-      </button>
-      {selectedId}
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &#x2715;
+            </button>
+            <img src={poster} alt={`${title} poster`} />
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                <span>📅</span>
+                <span>{released}</span>
+              </p>
+              <p>
+                <span>⏳</span>
+                <span>{runtime}</span>
+              </p>
+              <p>
+                <span>🌟</span>
+                <span>{imdbRating}</span>
+              </p>
+            </div>
+          </header>
+          <section>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>
+              <b>Genre:</b> {genre}
+            </p>
+            <p>
+              <b>Actors:</b> {actors}
+            </p>
+            <p>
+              <b>Director:</b> {director}
+            </p>
+            <div className="rating">
+              <StarRating max={10} color="#fcc419" size={24} />
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
@@ -212,7 +255,7 @@ export default function App() {
   const [watched, setWatched] = useState(tempWatchedData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("hitler");
+  const [query, setQuery] = useState("oppenheimer");
   const [selectMovieId, setSelectMovieId] = useState(null);
 
   function handleSelectMovieId(id) {

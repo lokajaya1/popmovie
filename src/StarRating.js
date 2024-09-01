@@ -89,7 +89,7 @@ export default function StarRating({ max = 5, color, size = 20, onSetRating }) {
           />
         ))}
       </div>
-      <p style={textStyle}>{tempRating || rating || ""} stars</p>
+      <p style={textStyle}>{tempRating || rating || ""} </p>
     </div>
   );
 }
