@@ -192,6 +192,11 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     getMovieDetails();
   }, [selectedId]);
 
+  useEffect(() => {
+    if (!title) return;
+    document.title = `Pop Movie | ${title}`;
+  }, [title]);
+
   function handleAddWatched() {
     const newWatchedMovie = {
       imdbID: selectedId,
